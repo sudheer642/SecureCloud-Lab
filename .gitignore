@@ -10,3 +10,15 @@ override.tf
 override.tf.json
 *_override.tf
 *_override.tf.json
+# Checkov local reports
+console,checkov-results.json/
+checkov-results.json
+
+# Secrets and local environment files
+.env
+.env.*
+!.env.example
+
+# Terraform plan files
+*.tfplan
+tfplan
