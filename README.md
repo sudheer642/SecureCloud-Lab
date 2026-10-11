@@ -13,6 +13,8 @@ The goal is to learn Infrastructure as Code (IaC), network segmentation, and bas
 - **Security Group:** Allows HTTP (80) and HTTPS (443)
 - **SSH:** No inbound SSH rule configured
 
+![SecureCloud-Lab Architecture](architecture.png)
+
 ## Technologies Used
 - AWS
 - Terraform
