@@ -10,22 +10,11 @@ terraform {
   }
 }
 
-variable "project_name" {
-  description = "Name of the cloud security lab"
-  type        = string
-  default     = "securecloud-lab"
-}
-
-variable "aws_region" {
-  description = "AWS region for deployment"
-  type        = string
-  default     = "ap-south-1"
-}
-
 provider "aws" {
   region = var.aws_region
 }
 
+# Main VPC
 resource "aws_vpc" "main" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_support   = true
@@ -37,26 +26,28 @@ resource "aws_vpc" "main" {
   }
 }
 
+# Public subnet
 resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.1.0/24"
   map_public_ip_on_launch = false
 
   tags = {
-    Name = "${var.project_name}-public"
+    Name = "${var.project_name}-public-subnet"
   }
 }
 
+# Private subnet
 resource "aws_subnet" "private" {
   vpc_id     = aws_vpc.main.id
   cidr_block = "10.0.2.0/24"
 
   tags = {
-    Name = "${var.project_name}-private"
+    Name = "${var.project_name}-private-subnet"
   }
 }
 
-# Internet Gateway for the VPC
+# Internet Gateway
 resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
 
@@ -79,16 +70,16 @@ resource "aws_route_table" "public" {
   }
 }
 
-# Associate public subnet with public route table
+# Associate public subnet with route table
 resource "aws_route_table_association" "public" {
   subnet_id      = aws_subnet.public.id
   route_table_id = aws_route_table.public.id
 }
 
-# Security group: allow web traffic only
+# Web security group: HTTP and HTTPS only
 resource "aws_security_group" "web" {
   name        = "${var.project_name}-web-sg"
-  description = "Allow HTTP and HTTPS inbound"
+  description = "Allow HTTP and HTTPS traffic"
   vpc_id      = aws_vpc.main.id
 
   ingress {
@@ -117,17 +108,4 @@ resource "aws_security_group" "web" {
   tags = {
     Name = "${var.project_name}-web-sg"
   }
-}
-
-
-output "vpc_cidr" {
-  value = aws_vpc.main.cidr_block
-}
-
-output "public_subnet_cidr" {
-  value = aws_subnet.public.cidr_block
-}
-
-output "private_subnet_cidr" {
-  value = aws_subnet.private.cidr_block
 }
